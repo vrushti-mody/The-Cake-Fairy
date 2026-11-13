@@ -1,5 +1,5 @@
-# Baked With Love by Annie
+# The Cake Fairy by Purvi
 
-A responsive website for Annie's custom celebration cake studio in Matunga East, Mumbai.
+A responsive website for The Cake Fairy by Purvi, a customised eggless cake and artisanal dessert shop in Matunga East, Mumbai.
 
-The site showcases signature cakes, customer reviews, studio hours and location, and links to Instagram and WhatsApp for enquiries.
+The site showcases custom cake offerings, customer reviews, daily opening hours and location, with direct phone and Instagram links for orders. Delivery is available across Mumbai and Navi Mumbai.
