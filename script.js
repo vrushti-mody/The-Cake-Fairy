@@ -1,4 +1,39 @@
 (() => {
+  const iconIds = new Map([
+    ['↗', 'arrow-up-right'], ['↓', 'arrow-down'], ['←', 'arrow-left'], ['→', 'arrow-right'],
+    ['★', 'star'], ['✳', 'sparkle'], ['◷', 'clock'], ['◈', 'diamond'], ['⌁', 'wave'],
+    ['⌖', 'pin'], ['☎', 'phone'], ['◎', 'instagram'], ['●', 'dot']
+  ]);
+  const iconNodes = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if (!node.nodeValue || !/[↗↓←→★✳◷◈⌁⌖☎◎●]/u.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
+      return node.parentElement?.closest('svg,script,style') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  const textNodes = [];
+  while (iconNodes.nextNode()) textNodes.push(iconNodes.currentNode);
+  textNodes.forEach((node) => {
+    const fragment = document.createDocumentFragment();
+    const parts = node.nodeValue.split(/([↗↓←→★✳◷◈⌁⌖☎◎●])/u);
+    parts.forEach((part) => {
+      const icon = iconIds.get(part);
+      if (!icon) {
+        if (part) fragment.append(document.createTextNode(part));
+        return;
+      }
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('class', `inline-icon icon-${icon}`);
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('focusable', 'false');
+      const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+      use.setAttribute('href', `#icon-${icon}`);
+      svg.append(use);
+      fragment.append(svg);
+    });
+    node.replaceWith(fragment);
+  });
+
   const menuButton = document.querySelector('.menu-toggle');
   const nav = document.querySelector('#primary-nav');
 
@@ -14,44 +49,6 @@
       menuButton.setAttribute('aria-label', 'Open navigation');
       nav.classList.remove('open');
     }));
-  }
-
-  const carousel = document.querySelector('.review-carousel');
-  const slides = [...document.querySelectorAll('.review-slide')];
-  const dots = [...document.querySelectorAll('.carousel-dots .dot')];
-  let current = 0;
-  const showSlide = (index) => {
-    current = (index + slides.length) % slides.length;
-    slides.forEach((slide, i) => {
-      slide.classList.toggle('active', i === current);
-      slide.setAttribute('aria-hidden', String(i !== current));
-      slide.querySelectorAll('a').forEach((link) => { link.tabIndex = i === current ? 0 : -1; });
-    });
-    dots.forEach((dot, i) => {
-      dot.classList.toggle('active', i === current);
-      if (i === current) dot.setAttribute('aria-current', 'true');
-      else dot.removeAttribute('aria-current');
-    });
-  };
-  if (carousel && slides.length) {
-    showSlide(0);
-    document.querySelector('.carousel-btn.prev')?.addEventListener('click', () => showSlide(current - 1));
-    document.querySelector('.carousel-btn.next')?.addEventListener('click', () => showSlide(current + 1));
-    dots.forEach((dot, index) => dot.addEventListener('click', () => showSlide(index)));
-    // Rotates only while the panel is not in use; controls remain available by keyboard.
-    let timer = window.setInterval(() => {
-      if (!carousel.matches(':hover') && !carousel.contains(document.activeElement) && document.visibilityState === 'visible') showSlide(current + 1);
-    }, 7000);
-    carousel.addEventListener('focusin', () => window.clearInterval(timer));
-    carousel.addEventListener('mouseenter', () => window.clearInterval(timer));
-    const resume = () => {
-      window.clearInterval(timer);
-      timer = window.setInterval(() => {
-        if (!carousel.matches(':hover') && !carousel.contains(document.activeElement) && document.visibilityState === 'visible') showSlide(current + 1);
-      }, 7000);
-    };
-    carousel.addEventListener('focusout', (event) => { if (!carousel.contains(event.relatedTarget)) resume(); });
-    carousel.addEventListener('mouseleave', resume);
   }
 
   const year = document.querySelector('#year');
